@@ -5,26 +5,49 @@ class PlayfairCipher:
     def create_playfair_matrix(self, key):
         key = key.replace("J", "I")  # Chuyển "J" thành "I" trong khóa
         key = key.upper()
-        key_set = set(key)
         alphabet = "ABCDEFGHIKLMNOPQRSTUVWXYZ"
-        remaining_letters = [
-            letter for letter in alphabet if letter not in key_set
-        ]
-        matrix = list(key)
 
-        for letter in remaining_letters:
-            matrix.append(letter)
-            if len(matrix) == 25:
-                break
+    # Bỏ trùng lặp trong khóa
+        matrix = []
+        for char in key:
+            if char not in matrix:
+                matrix.append(char)
+
+    # Thêm các chữ cái còn lại
+        for letter in alphabet:
+             if letter not in matrix:
+                matrix.append(letter)
+                if len(matrix) == 25:
+                    break
 
         playfair_matrix = [matrix[i:i+5] for i in range(0, len(matrix), 5)]
         return playfair_matrix
+
 
     def find_letter_coords(self, matrix, letter):
         for row in range(len(matrix)):
             for col in range(len(matrix[row])):
                 if matrix[row][col] == letter:
                     return row, col
+    def split_pairs(self, text):
+        text = text.upper().replace("J", "I").replace(" ", "")
+        pairs = []
+        i = 0
+        while i < len(text):
+            a = text[i]
+            if i + 1 < len(text):
+                b = text[i + 1]
+            if a == b:
+                pairs.append(a + "X")
+                i += 1
+            else:
+                pairs.append(a + b)
+                i += 2
+        else:
+            pairs.append(a + "X")
+            i += 1
+        return pairs
+
 
     def playfair_encrypt(self, plain_text, matrix):
         # Chuyển "J" thành "I" trong văn bản đầu vào
@@ -68,8 +91,5 @@ class PlayfairCipher:
             else:
                 banro += decrypted_text[i] + "" + decrypted_text[i+1]
 
-        if decrypted_text[-1] == "X":
-            banro += decrypted_text[-2]
-        else:
-            banro += decrypted_text[-1]
-        return banro
+        banro += decrypted_text[-2] + decrypted_text[-1]
+        return decrypted_text
